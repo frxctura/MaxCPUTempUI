@@ -11,3 +11,7 @@ Open<br>
 Set Temperature<br>
 Set Time<br>
 Done!
+
+# Screenshots 
+
+<img src="https://i.imgur.com/RGFXhii.png">
