@@ -19,7 +19,7 @@ using System.Windows.Forms.Layout;
 
 namespace MaxCPUTempUI
 {
-    public partial class Form1 : Form
+    public partial class MonitorShutDown : Form
     {
         public const int WM_NCLBUTTONDOWN = 0xA1;
         public const int HTCAPTION = 0x2;
@@ -27,6 +27,7 @@ namespace MaxCPUTempUI
         public static extern bool ReleaseCapture();
         [DllImport("User32.dll")]
         public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+        public bool IsAlive { get; }
         public class UpdateVisitor : IVisitor
         {
             public void VisitComputer(IComputer computer)
@@ -41,7 +42,7 @@ namespace MaxCPUTempUI
             public void VisitSensor(ISensor sensor) { }
             public void VisitParameter(IParameter parameter) { }
         }
-        public Form1()
+        public MonitorShutDown()
         {
             InitializeComponent();
         }
@@ -49,7 +50,6 @@ namespace MaxCPUTempUI
         {
             threadOne.Abort();
             threadTwo.Abort();
-            threadThree.Abort();
         }
 
         private void Form1_Resize(object sender, EventArgs e)
@@ -62,12 +62,12 @@ namespace MaxCPUTempUI
                 ContextMenu cm = new ContextMenu();
                 Hide();
                 notifyIcon1.ContextMenu = new ContextMenu(new MenuItem[]
-                {   
+                {
                         new MenuItem("Open", Open),
                         new MenuItem("-"),
                         new MenuItem("Exit", Exit)
                 });
-                    notifyIcon1.Visible = true;
+                notifyIcon1.Visible = true;
                 new ToastContentBuilder()
                 .AddHeroImage(new Uri("https://i.imgur.com/QZKo94i.png"))
                 .AddText("MaxCPUTempUI was minimized to system tray")
@@ -111,27 +111,37 @@ namespace MaxCPUTempUI
                     textBox2.Text = "";
                 });
                 MessageBox.Show("Please enter correct values");
-                threadOne.Abort();
+                AbortAllThreads();
             }
         }
         public static int currentGPUTemp;
         public void GrabGPUInfo(ref Computer computer, ref UpdateVisitor update)
         {
-            computer.Accept(update);
-            for (int i = 0; i < computer.Hardware.Length; i++)
+            try
             {
-                if (computer.Hardware[i].HardwareType == HardwareType.GpuNvidia)
+                computer.Accept(update);
+                for (int i = 0; i < computer.Hardware.Length; i++)
                 {
-                    for (int j = 0; j < computer.Hardware[i].Sensors.Length; j++)
+                    if (computer.Hardware[i].HardwareType == HardwareType.GpuNvidia)
                     {
-                        if (computer.Hardware[i].Sensors[j].SensorType == SensorType.Temperature)
+                        for (int j = 0; j < computer.Hardware[i].Sensors.Length; j++)
                         {
-                            currentGPUTemp = (int)computer.Hardware[i].Sensors[j].Value;
+                            if (computer.Hardware[i].Sensors[j].SensorType == SensorType.Temperature)
+                            {
+                                currentGPUTemp = (int)computer.Hardware[i].Sensors[j].Value;
+                            }
                         }
                     }
-                }
-            }
-        }
+                } }
+            catch (System.FormatException)
+            {
+                this.Invoke((MethodInvoker)delegate ()
+                {
+                    textBox2.Text = "";
+                });
+                MessageBox.Show("Please enter correct values");
+                threadOne.Abort();
+            } }
 
         public void ShutDown()
         {
@@ -141,31 +151,20 @@ namespace MaxCPUTempUI
             System.Environment.Exit(0);
         }
 
-        public void GetCPUTemp(ref Computer computer, ref UpdateVisitor update)
+        public void GetTemps(ref Computer computer, ref UpdateVisitor update)
         {
             while (true)
             {
                 GrabCPUInfo(ref computer, ref update);
-                this.Invoke((MethodInvoker)delegate ()
-                {
-                    label2.Text = $"{currentCPUTemp}°C";
-                });
-                Thread.Sleep(1000);
-            }
-
-        }
-
-        public void GetGPUTemp(ref Computer computer, ref UpdateVisitor update)
-        {
-            while (true)
-            {
                 GrabGPUInfo(ref computer, ref update);
                 this.Invoke((MethodInvoker)delegate ()
                 {
+                    label2.Text = $"{currentCPUTemp}°C";
                     label7.Text = $"{currentGPUTemp}°C";
                 });
                 Thread.Sleep(1000);
             }
+
         }
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -175,7 +174,6 @@ namespace MaxCPUTempUI
 
         public Thread threadOne;
         public Thread threadTwo;
-        public Thread threadThree;
         private void click(object sender, EventArgs e)
         {
             UpdateVisitor update = new UpdateVisitor();
@@ -183,12 +181,10 @@ namespace MaxCPUTempUI
             computer.Open();
             computer.CPUEnabled = true;
             computer.GPUEnabled = true;
-            threadOne = new Thread(() => GetCPUTemp(ref computer, ref update));
+            threadOne = new Thread(() => GetTemps(ref computer, ref update));
             threadOne.Start();
-            threadTwo = new Thread(() => GetGPUTemp(ref computer, ref update));
+            threadTwo = new Thread(() => RedrawForm());
             threadTwo.Start();
-            threadThree = new Thread(() => RedrawForm());
-            threadThree.Start();
         }
 
         private void RedrawForm()
@@ -225,6 +221,7 @@ namespace MaxCPUTempUI
                 SendMessage(Handle, WM_NCLBUTTONDOWN, HTCAPTION, 0);
             }
         }
+
         void Exit(object sender, EventArgs e)
         {
             // Hide tray icon, otherwise it will remain shown until user mouses over it
@@ -239,6 +236,29 @@ namespace MaxCPUTempUI
             Show();
             this.WindowState = FormWindowState.Normal;
             notifyIcon1.Visible = false;
+        }
+
+        private void panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void MonitorShutDown_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ChangeMode(object sender, EventArgs e)
+        {
+            this.Hide();
+            MonitoringOnly monitoronly = new MonitoringOnly();
+            monitoronly.Show();
+        }
+
+        private void AbortAllThreads()
+        {
+            threadOne.Abort();
+            threadTwo.Abort();
         }
     }
 }

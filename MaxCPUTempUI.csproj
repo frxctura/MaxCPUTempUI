@@ -59,17 +59,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Form1.cs">
+    <Compile Include="MonitorShutDown.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <Compile Include="MonitorShutDown.Designer.cs">
+      <DependentUpon>MonitorShutDown.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MonitoringOnly.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MonitoringOnly.Designer.cs">
+      <DependentUpon>MonitoringOnly.cs</DependentUpon>
     </Compile>
     <Compile Include="MaxCPUTemp.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="Form1.resx">
-      <DependentUpon>Form1.cs</DependentUpon>
+    <EmbeddedResource Include="MonitoringOnly.resx">
+      <DependentUpon>MonitoringOnly.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MonitorShutDown.resx">
+      <DependentUpon>MonitorShutDown.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
