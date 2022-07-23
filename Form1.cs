@@ -48,6 +48,8 @@ namespace MaxCPUTempUI
         public void Form1_Close(object sender, EventArgs e)
         {
             threadOne.Abort();
+            threadTwo.Abort();
+            threadThree.Abort();
         }
 
         private void Form1_Resize(object sender, EventArgs e)
@@ -66,7 +68,6 @@ namespace MaxCPUTempUI
                         new MenuItem("Exit", Exit)
                 });
                     notifyIcon1.Visible = true;
-
                 new ToastContentBuilder()
                 .AddHeroImage(new Uri("https://i.imgur.com/QZKo94i.png"))
                 .AddText("MaxCPUTempUI was minimized to system tray")
@@ -75,8 +76,8 @@ namespace MaxCPUTempUI
                 .Show();
             }
         }
-        public static int currentTemp;
-        public void GrabInfo(ref Computer computer, ref UpdateVisitor update)
+        public static int currentCPUTemp;
+        public void GrabCPUInfo(ref Computer computer, ref UpdateVisitor update)
         {
             try
             {
@@ -92,7 +93,7 @@ namespace MaxCPUTempUI
                             {
                                 if (computer.Hardware[i].Sensors[j].Value < maxTemp)
                                 {
-                                    currentTemp = (int)computer.Hardware[i].Sensors[j].Value;
+                                    currentCPUTemp = (int)computer.Hardware[i].Sensors[j].Value;
                                 }
                                 if (computer.Hardware[i].Sensors[j].Value > maxTemp)
                                 {
@@ -113,6 +114,24 @@ namespace MaxCPUTempUI
                 threadOne.Abort();
             }
         }
+        public static int currentGPUTemp;
+        public void GrabGPUInfo(ref Computer computer, ref UpdateVisitor update)
+        {
+            computer.Accept(update);
+            for (int i = 0; i < computer.Hardware.Length; i++)
+            {
+                if (computer.Hardware[i].HardwareType == HardwareType.GpuNvidia)
+                {
+                    for (int j = 0; j < computer.Hardware[i].Sensors.Length; j++)
+                    {
+                        if (computer.Hardware[i].Sensors[j].SensorType == SensorType.Temperature)
+                        {
+                            currentGPUTemp = (int)computer.Hardware[i].Sensors[j].Value;
+                        }
+                    }
+                }
+            }
+        }
 
         public void ShutDown()
         {
@@ -126,15 +145,27 @@ namespace MaxCPUTempUI
         {
             while (true)
             {
-                GrabInfo(ref computer, ref update);
+                GrabCPUInfo(ref computer, ref update);
                 this.Invoke((MethodInvoker)delegate ()
                 {
-                    label2.Text = $"{currentTemp}°C";
+                    label2.Text = $"{currentCPUTemp}°C";
                 });
-                Application.DoEvents();
                 Thread.Sleep(1000);
             }
 
+        }
+
+        public void GetGPUTemp(ref Computer computer, ref UpdateVisitor update)
+        {
+            while (true)
+            {
+                GrabGPUInfo(ref computer, ref update);
+                this.Invoke((MethodInvoker)delegate ()
+                {
+                    label7.Text = $"{currentGPUTemp}°C";
+                });
+                Thread.Sleep(1000);
+            }
         }
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -143,14 +174,27 @@ namespace MaxCPUTempUI
         }
 
         public Thread threadOne;
+        public Thread threadTwo;
+        public Thread threadThree;
         private void click(object sender, EventArgs e)
         {
             UpdateVisitor update = new UpdateVisitor();
             Computer computer = new Computer();
             computer.Open();
             computer.CPUEnabled = true;
+            computer.GPUEnabled = true;
             threadOne = new Thread(() => GetCPUTemp(ref computer, ref update));
             threadOne.Start();
+            threadTwo = new Thread(() => GetGPUTemp(ref computer, ref update));
+            threadTwo.Start();
+            threadThree = new Thread(() => RedrawForm());
+            threadThree.Start();
+        }
+
+        private void RedrawForm()
+        {
+            Application.DoEvents();
+            Thread.Sleep(80);
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
