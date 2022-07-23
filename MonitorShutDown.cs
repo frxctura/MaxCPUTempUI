@@ -157,10 +157,10 @@ namespace MaxCPUTempUI
             System.Environment.Exit(0);
         }
 
-        public void UpdateTemps() 
+        public void UpdateTemps()
         {
-                label2.Text = $"{currentCPUTemp}°C";
-                label7.Text = $"{currentGPUTemp}°C";
+            label2.Text = $"{currentCPUTemp}°C";
+            label7.Text = $"{currentGPUTemp}°C";
         }
 
         public void GetTemps(ref Computer computer, ref UpdateVisitor update)
@@ -210,10 +210,19 @@ namespace MaxCPUTempUI
 
         private void closeButton_Click(object sender, System.EventArgs e)
         {
+            if (threadOne != null)
+            {
             threadOne.Abort();
             timer2.Stop();
-            Application.Exit(); 
+            Application.Exit();
             Close();
+            }
+            else
+            {
+            timer2.Stop();
+            Application.Exit();
+            Close();
+            }
         }
 
         private void onMouseDown(object sender, MouseEventArgs e)
