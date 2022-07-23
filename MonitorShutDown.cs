@@ -77,7 +77,6 @@ namespace MaxCPUTempUI
         public void Form1_Close(object sender, EventArgs e)
         {
             threadOne.Abort();
-            threadTwo.Abort();
         }
 
         private void Form1_Resize(object sender, EventArgs e)
@@ -182,7 +181,6 @@ namespace MaxCPUTempUI
         }
 
         public Thread threadOne;
-        public Thread threadTwo;
         private void click(object sender, EventArgs e)
         {
             UpdateVisitor update = new UpdateVisitor();
@@ -198,6 +196,7 @@ namespace MaxCPUTempUI
             }
             else
             {
+                Data.currentlyRunning = true;
                 threadOne.Start();
             }
             timer2.Start();
@@ -273,6 +272,13 @@ namespace MaxCPUTempUI
 
         private void ChangeMode(object sender, EventArgs e)
         {
+            if (Data.currentlyRunning == true)
+            {
+                threadOne.Abort();
+                timer2.Stop();
+                label2.Text = "N/A";
+                label7.Text = "N/A";
+            }
             if (Data.monitorMode == true)
             {
                 textBox1.Text = "";
@@ -299,11 +305,6 @@ namespace MaxCPUTempUI
             }
         }
 
-        private void AbortAllThreads()
-        {
-            threadOne.Abort();
-            threadTwo.Abort();
-        }
         private void timer2_Tick(object sender, EventArgs e)
         {
             UpdateTemps();

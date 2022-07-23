@@ -8,6 +8,7 @@
         private static int _enteredTime;
         private static int _gpuTemperature;
         public static bool monitorMode;
+        public static bool currentlyRunning;
 
         public static int ShutdownTemp
         {
