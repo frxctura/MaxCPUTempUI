@@ -270,8 +270,11 @@ namespace MaxCPUTempUI
                 textBox2.Text = "";
                 textBox1.Visible = true;
                 label4.Visible = true;
+                label5.Text = "MaxCPUTempUI";
                 label3.Visible = true;
                 textBox2.Visible = true;
+                Data.SetShutdownTime(0);
+                Data.SetShutdownTemp(0);
                 Data.monitorMode = false;
             }
             else
@@ -280,6 +283,7 @@ namespace MaxCPUTempUI
                 label4.Visible = false;
                 textBox2.Visible = false;
                 label3.Visible = false;
+                label5.Text = "MaxCPUTempUI (MonitorOnly Mode)";
                 Data.SetShutdownTime(2147483647);
                 Data.SetShutdownTemp(2147483646);
                 Data.monitorMode = true;
