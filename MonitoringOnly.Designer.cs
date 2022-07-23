@@ -215,6 +215,7 @@
             this.Name = "MonitoringOnly";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Form2";
+            this.Load += new System.EventHandler(this.MonitoringOnly_load);
             this.Resize += new System.EventHandler(this.MonitoringOnly_Resize);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Text;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,6 +28,18 @@ namespace MaxCPUTempUI
         public static extern bool ReleaseCapture();
         [DllImport("User32.dll")]
         public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+
+        [System.Runtime.InteropServices.DllImport("gdi32.dll")]
+        private static extern IntPtr AddFontMemResourceEx(IntPtr pbFont, uint cbFont,
+           IntPtr pdv, [System.Runtime.InteropServices.In] ref uint pcFonts);
+
+        private PrivateFontCollection fonts = new PrivateFontCollection();
+
+        Font Font1;
+        Font Font2;
+        Font Font3;
+        Font Font4;
+
         public class UpdateVisitor : IVisitor
         {
             public void VisitComputer(IComputer computer)
@@ -44,6 +57,19 @@ namespace MaxCPUTempUI
         public MonitoringOnly()
         {
             InitializeComponent();
+
+            byte[] fontData = Properties.Resources.BebasNeue_Regular;
+            IntPtr fontPtr = System.Runtime.InteropServices.Marshal.AllocCoTaskMem(fontData.Length);
+            System.Runtime.InteropServices.Marshal.Copy(fontData, 0, fontPtr, fontData.Length);
+            uint dummy = 0;
+            fonts.AddMemoryFont(fontPtr, Properties.Resources.BebasNeue_Regular.Length);
+            AddFontMemResourceEx(fontPtr, (uint)Properties.Resources.BebasNeue_Regular.Length, IntPtr.Zero, ref dummy);
+            System.Runtime.InteropServices.Marshal.FreeCoTaskMem(fontPtr);
+
+            Font1 = new Font(fonts.Families[0], 12);
+            Font2 = new Font(fonts.Families[0], 14);
+            Font3 = new Font(fonts.Families[0], 12);
+            Font4 = new Font(fonts.Families[0], 11);
         }
         private void MonitoringOnly_Resize(object sender, EventArgs e)
         {
@@ -183,7 +209,7 @@ namespace MaxCPUTempUI
         {
             // Hide tray icon, otherwise it will remain shown until user mouses over it
             notifyIcon1.Visible = false;
-
+            this.Close();
             Application.Exit();
             notifyIcon1.Dispose();
         }
@@ -193,6 +219,17 @@ namespace MaxCPUTempUI
             Show();
             this.WindowState = FormWindowState.Normal;
             notifyIcon1.Visible = false;
+        }
+
+        private void MonitoringOnly_load(object sender, EventArgs e)
+        {
+            label3.Font = Font2;
+            label4.Font = Font2;
+            label5.Font = Font1;
+            label6.Font = Font2;
+            label7.Font = Font2;
+            button1.Font = Font3;
+            button3.Font = Font3;
         }
     }
 }
