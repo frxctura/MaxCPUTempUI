@@ -136,11 +136,23 @@ namespace MaxCPUTempUI
             {
                 this.Invoke((MethodInvoker)delegate ()
                 {
+                    textBox1.Text = "";
                     textBox2.Text = "";
                 });
                 MessageBox.Show("Please enter correct values");
                 AbortAllThreads();
             }
+            catch (System.OverflowException)
+            {
+                this.Invoke((MethodInvoker)delegate ()
+                {
+                    textBox1.Text = "";
+                    textBox2.Text = "";
+                });
+                MessageBox.Show("Too large of a number!");
+                AbortAllThreads();
+            }
+            
         }
         public static int currentGPUTemp;
         public void GrabGPUInfo(ref Computer computer, ref UpdateVisitor update)
