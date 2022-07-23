@@ -48,6 +48,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.button3 = new System.Windows.Forms.Button();
+            this.timer2 = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider1)).BeginInit();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -64,7 +65,7 @@
             this.label1.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.label1.Location = new System.Drawing.Point(340, 90);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(122, 23);
+            this.label1.Size = new System.Drawing.Size(170, 23);
             this.label1.TabIndex = 2;
             this.label1.Text = "Current CPU Temp";
             // 
@@ -75,7 +76,7 @@
             this.label2.ForeColor = System.Drawing.SystemColors.ButtonFace;
             this.label2.Location = new System.Drawing.Point(387, 113);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(33, 23);
+            this.label2.Size = new System.Drawing.Size(41, 23);
             this.label2.TabIndex = 3;
             this.label2.Text = "N/A";
             // 
@@ -107,7 +108,7 @@
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(100, 17);
             this.textBox1.TabIndex = 5;
-            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged_1);
+            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // textBox2
             // 
@@ -118,6 +119,7 @@
             this.textBox2.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.textBox2.Size = new System.Drawing.Size(100, 17);
             this.textBox2.TabIndex = 6;
+            this.textBox2.TextChanged += new System.EventHandler(this.textBox2_TextChanged);
             // 
             // label3
             // 
@@ -126,7 +128,7 @@
             this.label3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.label3.Location = new System.Drawing.Point(12, 103);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(201, 23);
+            this.label3.Size = new System.Drawing.Size(255, 23);
             this.label3.TabIndex = 7;
             this.label3.Text = "Enter Shutdown Temperature\r\n";
             // 
@@ -137,7 +139,7 @@
             this.label4.ForeColor = System.Drawing.SystemColors.ControlLightLight;
             this.label4.Location = new System.Drawing.Point(12, 35);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(146, 23);
+            this.label4.Size = new System.Drawing.Size(190, 23);
             this.label4.TabIndex = 8;
             this.label4.Text = "Enter Shutdown Time";
             // 
@@ -211,7 +213,7 @@
             this.label5.ForeColor = System.Drawing.SystemColors.ControlLight;
             this.label5.Location = new System.Drawing.Point(8, 4);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(79, 17);
+            this.label5.Size = new System.Drawing.Size(114, 17);
             this.label5.TabIndex = 12;
             this.label5.Text = "MaxCPUTempUI";
             // 
@@ -222,7 +224,7 @@
             this.label6.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.label6.Location = new System.Drawing.Point(340, 35);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(122, 23);
+            this.label6.Size = new System.Drawing.Size(171, 23);
             this.label6.TabIndex = 13;
             this.label6.Text = "Current GPU Temp";
             // 
@@ -233,7 +235,7 @@
             this.label7.ForeColor = System.Drawing.SystemColors.ButtonFace;
             this.label7.Location = new System.Drawing.Point(387, 58);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(33, 23);
+            this.label7.Size = new System.Drawing.Size(41, 23);
             this.label7.TabIndex = 14;
             this.label7.Text = "N/A";
             // 
@@ -252,6 +254,11 @@
             this.button3.Text = "Change Mode";
             this.button3.UseVisualStyleBackColor = false;
             this.button3.Click += new System.EventHandler(this.ChangeMode);
+            // 
+            // timer2
+            // 
+            this.timer2.Interval = 1000;
+            this.timer2.Tick += new System.EventHandler(this.timer2_Tick);
             // 
             // MonitorShutDown
             // 
@@ -305,6 +312,7 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Timer timer2;
     }
 }
 

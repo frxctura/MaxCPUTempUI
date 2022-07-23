@@ -107,88 +107,60 @@ namespace MaxCPUTempUI
         public static int currentCPUTemp;
         public void GrabCPUInfo(ref Computer computer, ref UpdateVisitor update)
         {
-            try
+            int maxTemp = Data.ShutdownTemp;
+            computer.Accept(update);
+            for (int i = 0; i < computer.Hardware.Length; i++)
             {
-                int maxTemp = int.Parse(textBox2.Text);
-                computer.Accept(update);
-                for (int i = 0; i < computer.Hardware.Length; i++)
+                if (computer.Hardware[i].HardwareType == HardwareType.CPU)
                 {
-                    if (computer.Hardware[i].HardwareType == HardwareType.CPU)
+                    for (int j = 0; j < computer.Hardware[i].Sensors.Length; j++)
                     {
-                        for (int j = 0; j < computer.Hardware[i].Sensors.Length; j++)
+                        if (computer.Hardware[i].Sensors[j].SensorType == SensorType.Temperature)
                         {
-                            if (computer.Hardware[i].Sensors[j].SensorType == SensorType.Temperature)
+                            if (computer.Hardware[i].Sensors[j].Value < maxTemp)
                             {
-                                if (computer.Hardware[i].Sensors[j].Value < maxTemp)
-                                {
-                                    currentCPUTemp = (int)computer.Hardware[i].Sensors[j].Value;
-                                }
-                                if (computer.Hardware[i].Sensors[j].Value > maxTemp)
-                                {
-                                    ShutDown();
-                                }
+                                currentCPUTemp = (int)computer.Hardware[i].Sensors[j].Value;
+                            }
+                            if (computer.Hardware[i].Sensors[j].Value > maxTemp)
+                            {
+                                ShutDown();
                             }
                         }
                     }
                 }
             }
-            catch (System.FormatException)
-            {
-                this.Invoke((MethodInvoker)delegate ()
-                {
-                    textBox1.Text = "";
-                    textBox2.Text = "";
-                });
-                MessageBox.Show("Please enter correct values");
-                AbortAllThreads();
-            }
-            catch (System.OverflowException)
-            {
-                this.Invoke((MethodInvoker)delegate ()
-                {
-                    textBox1.Text = "";
-                    textBox2.Text = "";
-                });
-                MessageBox.Show("Too large of a number!");
-                AbortAllThreads();
-            }
-            
         }
+
         public static int currentGPUTemp;
         public void GrabGPUInfo(ref Computer computer, ref UpdateVisitor update)
         {
-            try
+            computer.Accept(update);
+            for (int i = 0; i < computer.Hardware.Length; i++)
             {
-                computer.Accept(update);
-                for (int i = 0; i < computer.Hardware.Length; i++)
+                if (computer.Hardware[i].HardwareType == HardwareType.GpuNvidia)
                 {
-                    if (computer.Hardware[i].HardwareType == HardwareType.GpuNvidia)
+                    for (int j = 0; j < computer.Hardware[i].Sensors.Length; j++)
                     {
-                        for (int j = 0; j < computer.Hardware[i].Sensors.Length; j++)
+                        if (computer.Hardware[i].Sensors[j].SensorType == SensorType.Temperature)
                         {
-                            if (computer.Hardware[i].Sensors[j].SensorType == SensorType.Temperature)
-                            {
-                                currentGPUTemp = (int)computer.Hardware[i].Sensors[j].Value;
-                            }
+                            currentGPUTemp = (int)computer.Hardware[i].Sensors[j].Value;
                         }
                     }
-                } }
-            catch (System.FormatException)
-            {
-                this.Invoke((MethodInvoker)delegate ()
-                {
-                    textBox2.Text = "";
-                });
-                MessageBox.Show("Please enter correct values");
-                threadOne.Abort();
-            } }
+                }
+            }
+        }
 
         public void ShutDown()
         {
             string offTime = textBox1.Text;
             Process.Start("shutdown", $"/s /t {offTime}");
-            Console.WriteLine("Too high of a temperature, shutting down");
             System.Environment.Exit(0);
+        }
+
+        public void UpdateTemps() 
+        {
+                label2.Text = $"{currentCPUTemp}°C";
+                label7.Text = $"{currentGPUTemp}°C";
         }
 
         public void GetTemps(ref Computer computer, ref UpdateVisitor update)
@@ -197,11 +169,8 @@ namespace MaxCPUTempUI
             {
                 GrabCPUInfo(ref computer, ref update);
                 GrabGPUInfo(ref computer, ref update);
-                this.Invoke((MethodInvoker)delegate ()
-                {
-                    label2.Text = $"{currentCPUTemp}°C";
-                    label7.Text = $"{currentGPUTemp}°C";
-                });
+                Data.SetCPUTemperature(currentCPUTemp);
+                Data.SetGPUTemperature(currentGPUTemp);
                 Thread.Sleep(1000);
             }
 
@@ -222,25 +191,16 @@ namespace MaxCPUTempUI
             computer.CPUEnabled = true;
             computer.GPUEnabled = true;
             threadOne = new Thread(() => GetTemps(ref computer, ref update));
-            threadOne.Start();
-            threadTwo = new Thread(() => RedrawForm());
-            threadTwo.Start();
-        }
-
-        private void RedrawForm()
-        {
-            Application.DoEvents();
-            Thread.Sleep(80);
-        }
-
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox1_TextChanged_1(object sender, EventArgs e)
-        {
-
+            if (MaxCPUTempUI.Data.ShutdownTime == 0 || MaxCPUTempUI.Data.ShutdownTemp == 0)
+            {
+                MessageBox.Show("Please enter values");
+                return;
+            }
+            else
+            {
+                threadOne.Start();
+            }
+            timer2.Start();
         }
 
         private void minimizeButton_Click(object sender, System.EventArgs e)
@@ -250,6 +210,9 @@ namespace MaxCPUTempUI
 
         private void closeButton_Click(object sender, System.EventArgs e)
         {
+            threadOne.Abort();
+            timer2.Stop();
+            Application.Exit(); 
             Close();
         }
 
@@ -264,6 +227,7 @@ namespace MaxCPUTempUI
 
         void Exit(object sender, EventArgs e)
         {
+
             // Hide tray icon, otherwise it will remain shown until user mouses over it
             notifyIcon1.Visible = false;
 
@@ -300,9 +264,26 @@ namespace MaxCPUTempUI
 
         private void ChangeMode(object sender, EventArgs e)
         {
-            this.Hide();
-            MonitoringOnly monitoronly = new MonitoringOnly();
-            monitoronly.Show();
+            if (Data.monitorMode == true)
+            {
+                textBox1.Text = "";
+                textBox2.Text = "";
+                textBox1.Visible = true;
+                label4.Visible = true;
+                label3.Visible = true;
+                textBox2.Visible = true;
+                Data.monitorMode = false;
+            }
+            else
+            {
+                textBox1.Visible = false;
+                label4.Visible = false;
+                textBox2.Visible = false;
+                label3.Visible = false;
+                Data.SetShutdownTime(2147483647);
+                Data.SetShutdownTemp(2147483646);
+                Data.monitorMode = true;
+            }
         }
 
         private void AbortAllThreads()
@@ -310,6 +291,37 @@ namespace MaxCPUTempUI
             threadOne.Abort();
             threadTwo.Abort();
         }
+        private void timer2_Tick(object sender, EventArgs e)
+        {
+            UpdateTemps();
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            int value;
+            if (int.TryParse(textBox1.Text, out value))
+            {
+                Data.SetShutdownTime(value);
+            }
+            else
+            {
+                MessageBox.Show("Invalid time");
+                textBox1.SelectAll();
+            }
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+            int value;
+            if (int.TryParse(textBox2.Text, out value))
+            {
+                Data.SetShutdownTemp(value);
+            }
+            else
+            {
+                MessageBox.Show("Invalid Temp");
+                textBox2.SelectAll();
+            }
+        }
     }
 }
-
