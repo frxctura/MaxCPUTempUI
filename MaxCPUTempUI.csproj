@@ -108,6 +108,7 @@
     <None Include="Resources\AppIcon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Resources\BebasNeue-Regular.ttf" />
     <None Include="Resources\shutdown.ico" />
   </ItemGroup>
   <ItemGroup>

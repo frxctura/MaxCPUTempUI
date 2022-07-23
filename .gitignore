@@ -1,0 +1,13 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/MaxCPUTempUI/FileContentIndex/30f32f1b-c1af-4905-9968-35626455162b.vsidx
+/.vs/MaxCPUTempUI/FileContentIndex/362674e2-546b-41ed-9ab5-6a6ccdc62268.vsidx
+/.vs/MaxCPUTempUI/FileContentIndex/bf749a45-1047-4ecf-9514-070000bfdde3.vsidx
+/.vs/MaxCPUTempUI/FileContentIndex/eba2182a-7303-4675-9712-4ebe2c24e836.vsidx
+/.vs/MaxCPUTempUI
+/bin/Debug
+/bin/Release
+/MigrationBackup/cf9854ca/MaxCPUTempUI
+/obj
