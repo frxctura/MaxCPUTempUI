@@ -149,11 +149,55 @@ namespace MaxCPUTempUI
             }
         }
 
+        public static int currentGPULoad;
+        public void GrabGPULoad(ref Computer computer, ref UpdateVisitor update)
+        {
+            computer.Accept(update);
+            for (int i = 0; i < computer.Hardware.Length; i++)
+            {
+                if (computer.Hardware[i].HardwareType == HardwareType.GpuNvidia)
+                {
+                    for (int j = 0; j < computer.Hardware[i].Sensors.Length; j++)
+                    {
+                        if (computer.Hardware[i].Sensors[j].SensorType == SensorType.Load)
+                        {
+                            currentGPULoad = (int)computer.Hardware[i].Sensors[j].Value;
+                        }
+                    }
+                }
+            }
+        }
+
+        public static int currentCPULoad;
+        public void GrabCPULoad(ref Computer computer, ref UpdateVisitor update)
+        {
+            computer.Accept(update);
+            for (int i = 0; i < computer.Hardware.Length; i++)
+            {
+                if (computer.Hardware[i].HardwareType == HardwareType.CPU)
+                {
+                    for (int j = 0; j < computer.Hardware[i].Sensors.Length; j++)
+                    {
+                        if (computer.Hardware[i].Sensors[j].SensorType == SensorType.Load)
+                        {
+                            currentCPULoad = (int)computer.Hardware[i].Sensors[j].Value;
+                        }
+                    }
+                }
+            }
+        }
+
         public void ShutDown()
         {
             string offTime = textBox1.Text;
             Process.Start("shutdown", $"/s /t {offTime}");
             System.Environment.Exit(0);
+        }
+
+        public void UpdateLoads()
+        {
+            label8.Text = $"{currentGPULoad}%";
+            label10.Text = $"{currentCPULoad}%";
         }
 
         public void UpdateTemps()
@@ -172,7 +216,18 @@ namespace MaxCPUTempUI
                 Data.SetGPUTemperature(currentGPUTemp);
                 Thread.Sleep(1000);
             }
+        }
 
+        public void GetLoads(ref Computer computer, ref UpdateVisitor update)
+        {
+            while (true)
+            {
+                GrabCPULoad(ref computer, ref update);
+                GrabGPULoad(ref computer, ref update);
+                Data.SetCPULoad(currentCPULoad);
+                Data.SetGPULoad(currentGPULoad);
+                Thread.Sleep(1000);
+            }
         }
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -181,6 +236,7 @@ namespace MaxCPUTempUI
         }
 
         public Thread threadOne;
+        public Thread threadTwo;
         private void click(object sender, EventArgs e)
         {
             UpdateVisitor update = new UpdateVisitor();
@@ -189,6 +245,7 @@ namespace MaxCPUTempUI
             computer.CPUEnabled = true;
             computer.GPUEnabled = true;
             threadOne = new Thread(() => GetTemps(ref computer, ref update));
+            threadTwo = new Thread(() => GetLoads(ref computer, ref update));
             if (MaxCPUTempUI.Data.ShutdownTime == 0 || MaxCPUTempUI.Data.ShutdownTemp == 0)
             {
                 MessageBox.Show("Please enter values");
@@ -198,6 +255,7 @@ namespace MaxCPUTempUI
             {
                 Data.currentlyRunning = true;
                 threadOne.Start();
+                threadTwo.Start();
             }
             timer2.Start();
         }
@@ -212,6 +270,14 @@ namespace MaxCPUTempUI
             if (threadOne != null)
             {
             threadOne.Abort();
+            timer2.Stop();
+            Application.Exit();
+            Close();
+            }
+            if (threadOne != null || threadTwo != null)
+            {
+            threadOne.Abort();
+            threadTwo.Abort();
             timer2.Stop();
             Application.Exit();
             Close();
@@ -250,11 +316,6 @@ namespace MaxCPUTempUI
             notifyIcon1.Visible = false;
         }
 
-        private void panel1_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
         private void MonitorShutDown_Load(object sender, EventArgs e)
         {
             label1.Font = Font2;
@@ -268,6 +329,10 @@ namespace MaxCPUTempUI
             textBox2.Font = Font4;
             button1.Font = Font3;
             button3.Font = Font3;
+            label8.Font = Font2;
+            label10.Font = Font2;
+            label9.Font = Font2;
+            label11.Font = Font2;
         }
 
         private void ChangeMode(object sender, EventArgs e)
@@ -278,6 +343,8 @@ namespace MaxCPUTempUI
                 timer2.Stop();
                 label2.Text = "N/A";
                 label7.Text = "N/A";
+                label8.Text = "N/A";
+                label10.Text = "N/A";
             }
             if (Data.monitorMode == true)
             {
@@ -287,6 +354,10 @@ namespace MaxCPUTempUI
                 label4.Visible = true;
                 label5.Text = "MaxCPUTempUI";
                 label3.Visible = true;
+                label8.Visible = false;
+                label10.Visible = false;
+                label9.Visible = false;
+                label11.Visible = false;
                 textBox2.Visible = true;
                 Data.SetShutdownTime(0);
                 Data.SetShutdownTemp(0);
@@ -298,7 +369,10 @@ namespace MaxCPUTempUI
                 label4.Visible = false;
                 textBox2.Visible = false;
                 label3.Visible = false;
-                label5.Text = "MaxCPUTempUI (MonitorOnly Mode)";
+                label8.Visible = true;
+                label10.Visible = true;
+                label9.Visible = true;
+                label11.Visible = true;
                 Data.SetShutdownTime(2147483647);
                 Data.SetShutdownTemp(2147483646);
                 Data.monitorMode = true;
@@ -308,6 +382,7 @@ namespace MaxCPUTempUI
         private void timer2_Tick(object sender, EventArgs e)
         {
             UpdateTemps();
+            UpdateLoads();
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)

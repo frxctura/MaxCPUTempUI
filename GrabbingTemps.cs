@@ -4,11 +4,35 @@
     {
         private static object _lock = new object();
         private static int _cpuTemperature;
+        private static int _cpuLoad;
         private static int _enteredTemperature;
         private static int _enteredTime;
         private static int _gpuTemperature;
+        private static int _gpuLoad;
         public static bool monitorMode;
         public static bool currentlyRunning;
+
+        public static int CPULoad
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return _cpuLoad;
+                }
+            }
+        }
+
+        public static int GPULoad
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return _gpuLoad;
+                }
+            }
+        }
 
         public static int ShutdownTemp
         {
@@ -75,6 +99,22 @@
             lock (_lock)
             {
                 _cpuTemperature = newTemp;
+            }
+        }
+
+        public static void SetCPULoad(int CPULoad)
+        {
+            lock (_lock)
+            {
+                _cpuLoad = CPULoad;
+            }
+        }
+
+        public static void SetGPULoad(int GPULoad)
+        {
+            lock (_lock)
+            {
+                _gpuLoad = GPULoad;
             }
         }
 
