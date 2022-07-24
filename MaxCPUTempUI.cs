@@ -20,7 +20,7 @@ using System.Windows.Forms.Layout;
 
 namespace MaxCPUTempUI
 {
-    public partial class MonitorShutDown : Form
+    public partial class MaxCPUTempUI : Form
     {
         public const int WM_NCLBUTTONDOWN = 0xA1;
         public const int HTCAPTION = 0x2;
@@ -57,7 +57,7 @@ namespace MaxCPUTempUI
             public void VisitSensor(ISensor sensor) { }
             public void VisitParameter(IParameter parameter) { }
         }
-        public MonitorShutDown()
+        public MaxCPUTempUI()
         {
             InitializeComponent();
 
@@ -246,7 +246,7 @@ namespace MaxCPUTempUI
             computer.GPUEnabled = true;
             threadOne = new Thread(() => GetTemps(ref computer, ref update));
             threadTwo = new Thread(() => GetLoads(ref computer, ref update));
-            if (MaxCPUTempUI.Data.ShutdownTime == 0 || MaxCPUTempUI.Data.ShutdownTemp == 0)
+            if (global::MaxCPUTempUI.Data.ShutdownTime == 0 || global::MaxCPUTempUI.Data.ShutdownTemp == 0)
             {
                 MessageBox.Show("Please enter values");
                 return;

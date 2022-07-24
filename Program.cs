@@ -16,7 +16,7 @@ namespace MaxCPUTempUI
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MonitorShutDown());
+            Application.Run(new MaxCPUTempUI());
         }
     }
 }

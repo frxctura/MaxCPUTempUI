@@ -63,17 +63,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GrabbingTemps.cs" />
-    <Compile Include="MonitorShutDown.cs">
+    <Compile Include="MaxCPUTempUI.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MonitorShutDown.Designer.cs">
-      <DependentUpon>MonitorShutDown.cs</DependentUpon>
+    <Compile Include="MaxCPUTempUI.Designer.cs">
+      <DependentUpon>MaxCPUTempUI.cs</DependentUpon>
     </Compile>
     <Compile Include="MaxCPUTemp.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="MonitorShutDown.resx">
-      <DependentUpon>MonitorShutDown.cs</DependentUpon>
+    <EmbeddedResource Include="MaxCPUTempUI.resx">
+      <DependentUpon>MaxCPUTempUI.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
