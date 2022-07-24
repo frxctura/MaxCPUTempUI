@@ -369,6 +369,7 @@ namespace MaxCPUTempUI
                 label4.Visible = false;
                 textBox2.Visible = false;
                 label3.Visible = false;
+                label5.Text = "MaxCPUTempUI (MonitorOnly Mode)";
                 label8.Visible = true;
                 label10.Visible = true;
                 label9.Visible = true;
