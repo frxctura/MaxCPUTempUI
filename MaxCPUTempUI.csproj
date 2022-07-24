@@ -40,6 +40,9 @@
   <PropertyGroup>
     <ApplicationIcon>shutdown.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>true</SignManifests>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="OpenHardwareMonitorLib">
       <HintPath>..\..\..\Desktop\Stuff\OpenHardwareMonitorLib.dll</HintPath>
